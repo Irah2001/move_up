@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1070373116243",
+    "project_id": "move-up-896e9",
+    "storage_bucket": "move-up-896e9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1070373116243:android:7d18aa4ed95c2c6b23a9a6",
+        "android_client_info": {
+          "package_name": "com.example.move_up"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDaIcG6wnKfJtPkXlzk5RL69lm37dddx0E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
