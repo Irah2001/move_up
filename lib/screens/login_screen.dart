@@ -39,8 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('Connexion réussie !')));
-        // TODO: Navigation vers l'écran principal
-        Navigator.of(context).pop();
+        Navigator.of(context).pushReplacementNamed('/home');
       }
     } catch (e) {
       if (mounted) {

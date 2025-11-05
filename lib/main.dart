@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:move_up/screens/home_screen.dart';
 import 'package:move_up/screens/splash_screen.dart';
 import 'package:move_up/screens/login_screen.dart';
 import 'package:move_up/screens/signup_screen.dart';
@@ -31,6 +32,9 @@ class MyApp extends StatelessWidget {
       onGenerateRoute: (settings) {
         WidgetBuilder builder;
         switch (settings.name) {
+          case '/home':
+            builder = (context) => const HomeScreen();
+            break;
           case '/splash':
             builder = (context) => const SplashScreen();
             break;
