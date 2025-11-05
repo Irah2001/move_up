@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:move_up/screens/signup_screen.dart';
-import 'package:move_up/screens/login_screen.dart';
+import 'package:move_up/constants/app_colors.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -16,7 +15,7 @@ class WelcomeScreen extends StatelessWidget {
             image: AssetImage('assets/images/welcome_screen_background.jpg'),
             fit: BoxFit.cover,
             colorFilter: ColorFilter.mode(
-              Colors.black.withValues(alpha: 0.4),
+              AppColors.black.withValues(alpha: 0.4),
               BlendMode.darken,
             ),
           ),
@@ -42,7 +41,7 @@ class WelcomeScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 40,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFFF7F8F7),
+                        color: AppColors.offWhite,
                         height: 1.2,
                       ),
                     ),
@@ -51,7 +50,7 @@ class WelcomeScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 40,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFFF7F8F7),
+                        color: AppColors.offWhite,
                         height: 1.2,
                       ),
                     ),
@@ -60,7 +59,7 @@ class WelcomeScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 40,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFFF7F8F7),
+                        color: AppColors.offWhite,
                         height: 1.2,
                       ),
                     ),
@@ -78,16 +77,10 @@ class WelcomeScreen extends StatelessWidget {
                         height: 60,
                         child: ElevatedButton(
                           onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => const SignUpScreen(),
-                              ),
-                            );
+                            Navigator.pushNamed(context, '/signup');
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(
-                              0xFFF2FD48,
-                            ), // Couleur Figma exacte
+                            backgroundColor: AppColors.accentGreen,
                             foregroundColor: Colors.black,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
@@ -118,16 +111,12 @@ class WelcomeScreen extends StatelessWidget {
                         height: 60,
                         child: ElevatedButton(
                           onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => const LoginScreen(),
-                              ),
-                            );
+                            Navigator.pushNamed(context, '/login');
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(
-                              0xFF3F3E3E,
-                            ).withValues(alpha: 0.60), // Opacité moyenne
+                            backgroundColor: AppColors.primaryDark.withValues(
+                              alpha: 0.60,
+                            ), // Opacité moyenne
                             foregroundColor: Colors.white.withValues(
                               alpha: 0.9,
                             ),

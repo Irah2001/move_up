@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:move_up/services/auth_service.dart';
 
+import 'package:move_up/constants/app_colors.dart';
+
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
@@ -60,12 +62,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF19191A),
+      backgroundColor: AppColors.primaryDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: AppColors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -82,7 +84,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: AppColors.white,
                   ),
                 ),
                 const SizedBox(height: 40),
@@ -90,24 +92,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 // Email
                 TextFormField(
                   controller: _emailController,
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: AppColors.white),
                   decoration: InputDecoration(
                     labelText: 'Email',
-                    labelStyle: TextStyle(color: Colors.grey[400]),
+                    labelStyle: TextStyle(color: AppColors.grey400),
                     enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey[700]!),
+                      borderSide: BorderSide(color: AppColors.grey700),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Color(0xFFD4FF00)),
+                      borderSide: const BorderSide(
+                        color: AppColors.accentGreen,
+                      ),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     errorBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.red),
+                      borderSide: const BorderSide(color: AppColors.red),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     focusedErrorBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.red),
+                      borderSide: const BorderSide(color: AppColors.red),
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
@@ -128,24 +132,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: AppColors.white),
                   decoration: InputDecoration(
                     labelText: 'Mot de passe',
-                    labelStyle: TextStyle(color: Colors.grey[400]),
+                    labelStyle: TextStyle(color: AppColors.grey400),
                     enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey[700]!),
+                      borderSide: BorderSide(color: AppColors.grey700),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Color(0xFFD4FF00)),
+                      borderSide: const BorderSide(
+                        color: AppColors.accentGreen,
+                      ),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     errorBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.red),
+                      borderSide: const BorderSide(color: AppColors.red),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     focusedErrorBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.red),
+                      borderSide: const BorderSide(color: AppColors.red),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     suffixIcon: IconButton(
@@ -153,7 +159,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         _obscurePassword
                             ? Icons.visibility_off
                             : Icons.visibility,
-                        color: Colors.grey[400],
+                        color: AppColors.grey400,
                       ),
                       onPressed: () {
                         setState(() => _obscurePassword = !_obscurePassword);
@@ -176,24 +182,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 TextFormField(
                   controller: _confirmPasswordController,
                   obscureText: _obscureConfirmPassword,
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: AppColors.white),
                   decoration: InputDecoration(
                     labelText: 'Confirmer le mot de passe',
-                    labelStyle: TextStyle(color: Colors.grey[400]),
+                    labelStyle: TextStyle(color: AppColors.grey400),
                     enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey[700]!),
+                      borderSide: BorderSide(color: AppColors.grey700),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Color(0xFFD4FF00)),
+                      borderSide: const BorderSide(
+                        color: AppColors.accentGreen,
+                      ),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     errorBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.red),
+                      borderSide: const BorderSide(color: AppColors.red),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     focusedErrorBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.red),
+                      borderSide: const BorderSide(color: AppColors.red),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     suffixIcon: IconButton(
@@ -201,7 +209,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         _obscureConfirmPassword
                             ? Icons.visibility_off
                             : Icons.visibility,
-                        color: Colors.grey[400],
+                        color: AppColors.grey400,
                       ),
                       onPressed: () {
                         setState(
@@ -230,15 +238,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _signUp,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFD4FF00),
-                      foregroundColor: Colors.black,
+                      backgroundColor: AppColors.accentGreen,
+                      foregroundColor: AppColors.black,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(28),
                       ),
                       elevation: 0,
                     ),
                     child: _isLoading
-                        ? const CircularProgressIndicator(color: Colors.black)
+                        ? const CircularProgressIndicator(
+                            color: AppColors.black,
+                          )
                         : const Text(
                             'S\'INSCRIRE',
                             style: TextStyle(
