@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:move_up/constants/app_colors.dart';
+import 'package:move_up/screens/maps_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,6 +11,29 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
+
+  static const List<String> _pageTitles = <String>[
+    'ACCUEIL',
+    'ENTRAÎNEMENTS',
+    'NUTRITION',
+    'PROGRÈS',
+    'PROFIL',
+  ];
+
+  static const Widget _comingSoonWidget = Center(
+    child: Text(
+      'Bientôt disponible',
+      style: TextStyle(color: AppColors.white, fontSize: 18),
+    ),
+  );
+
+  static const List<Widget> _widgetOptions = <Widget>[
+    MapsScreen(),
+    _comingSoonWidget,
+    _comingSoonWidget,
+    _comingSoonWidget,
+    _comingSoonWidget,
+  ];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -27,9 +51,9 @@ class _HomeScreenState extends State<HomeScreen> {
         elevation: 0,
         centerTitle: true,
 
-        title: const Text(
-          'ACCUEIL',
-          style: TextStyle(
+        title: Text(
+          _pageTitles[_selectedIndex],
+          style: const TextStyle(
             color: AppColors.white,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.5,
@@ -37,13 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
 
-      body: const Center(
-        child: Text(
-          'Contenu de la page d\'accueil',
-          style: TextStyle(color: AppColors.white),
-        ),
-      ),
-
+      body: _widgetOptions.elementAt(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: AppColors.primaryDark,
         selectedItemColor: AppColors.accentGreen,
