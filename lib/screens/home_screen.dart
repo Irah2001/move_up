@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:move_up/constants/app_colors.dart';
 import 'package:move_up/screens/maps_screen.dart';
 import 'package:move_up/screens/progress_screen.dart';
+import 'package:move_up/screens/user_profile_page.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -33,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _comingSoonWidget,
     _comingSoonWidget,
     ProgressScreen(),
-    _comingSoonWidget,
+    UserProfilePage(),
   ];
 
   void _onItemTapped(int index) {
