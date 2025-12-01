@@ -1,0 +1,14 @@
+{
+  "plan": {
+    "name": "Plan équilibré - 1800 kcal",
+    "description": "Plan d'exemple pour perte de graisse légère",
+    "totalCalories": 1800,
+    "macros": { "protein": 30, "carbs": 45, "fat": 25 }
+  },
+  "meals": [
+    { "id": "meal_1", "name": "Petit-déjeuner", "timing": "Matin", "calories": 450, "protein": 30, "carbs": 50, "fat": 15, "ingredients": ["Avoine","Lait","Fruits"], "instructions": "Préparer un porridge" },
+    { "id": "meal_2", "name": "Déjeuner", "timing": "Midi", "calories": 650, "protein": 35, "carbs": 80, "fat": 20, "ingredients": ["Poulet","Riz","Légumes"], "instructions": "Griller le poulet et servir avec riz" },
+    { "id": "meal_3", "name": "Dîner", "timing": "Soir", "calories": 700, "protein": 40, "carbs": 60, "fat": 30, "ingredients": ["Poisson","Patate douce","Salade"], "instructions": "Cuire au four" }
+  ],
+  "tips": ["Boire de l'eau régulièrement", "Respecter les portions"]
+}

@@ -1,0 +1,33 @@
+{
+  "id": "prog_example_001",
+  "name": "Intermédiaire - 4j/semaine",
+  "description": "Programme d'exemple orienté force et perte de graisse",
+  "difficulty": "Intermédiaire",
+  "durationMinutes": 160,
+  "objectives": ["force", "perte de graisse"],
+  "equipment": ["haltères", "tapis"],
+  "workouts": [
+    {
+      "id": "w1",
+      "name": "Jour 1 - Force bas du corps",
+      "day": "lundi",
+      "durationMinutes": 40,
+      "warmup": ["5 min vélo", "mobilité hanches 5 min"],
+      "exercises": [
+        { "id": "e1", "name": "Squat", "type": "force", "muscles": ["quadriceps","fessiers"], "sets": 5, "reps": "5", "tempo": "3-0-1", "restSeconds": 180, "equipment": ["haltères"] },
+        { "id": "e2", "name": "Soulevé de terre", "type": "force", "muscles": ["ischio-jambiers","fessiers"], "sets": 4, "reps": "6", "restSeconds": 120, "equipment": ["haltères"] }
+      ]
+    },
+    {
+      "id": "w2",
+      "name": "Jour 2 - Conditioning",
+      "day": "mardi",
+      "durationMinutes": 40,
+      "exercises": [
+        { "id": "e10", "name": "Circuit HIIT", "type": "cardio", "sets": 1, "reps": "20min AMRAP", "restSeconds": 60 }
+      ]
+    }
+  ],
+  "createdAt": "2025-12-01T10:00:00Z",
+  "generatedBy": "mock"
+}

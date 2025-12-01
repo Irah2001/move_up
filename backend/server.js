@@ -4,6 +4,57 @@ const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 require('dotenv').config();
 
+// ===== Gemini (Google Generative AI) INITIALIZATION =====
+let GoogleGenAI = null;
+let genaiClient = null;
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3-pro-preview';
+// Schema validation & exercise normalization
+const Ajv = require('ajv');
+const addFormats = require('ajv-formats');
+const path = require('path');
+const fs = require('fs');
+const axios = require('axios');
+
+const ajv = new Ajv({ allErrors: true, allowUnionTypes: true, strict: false });
+addFormats(ajv);
+const schemaPath = path.join(__dirname, 'schemas', 'training_program.schema.json');
+let trainingSchema = null;
+try {
+  trainingSchema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
+  ajv.addSchema(trainingSchema, 'trainingProgram');
+  console.log('✅ TrainingProgram schema loaded for validation.');
+} catch (e) {
+  console.warn('⚠️ Could not load training schema:', e.message || e);
+}
+
+// Load canonical exercises map
+let canonicalExercises = {};
+try {
+  const exercisesPath = path.join(__dirname, 'data', 'exercises.json');
+  canonicalExercises = JSON.parse(fs.readFileSync(exercisesPath, 'utf8'));
+  console.log('✅ Canonical exercises loaded.');
+} catch (e) {
+  console.warn('⚠️ Could not load canonical exercises:', e.message || e);
+}
+
+const normalizeExerciseName = (name) => {
+  if (!name) return name;
+  const key = name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+  if (canonicalExercises[key]) return canonicalExercises[key].name;
+  // fallback: title case
+  return name.split(' ').map(w => w[0].toUpperCase() + w.slice(1)).join(' ');
+}
+
+// Use REST via axios when GEMINI_API_KEY is present. We do not require an SDK.
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || null;
+const GEMINI_BASE = process.env.GEMINI_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta2';
+const geminiEnabled = Boolean(GEMINI_API_KEY);
+if (geminiEnabled) {
+  console.log('✅ GEMINI_API_KEY present — using Gemini REST API via axios.');
+} else {
+  console.log('ℹ️ GEMINI_API_KEY not set; using mock AI endpoints.');
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -1332,14 +1383,65 @@ app.delete('/api/nutrition/meals/:mealId', (req, res) => {
   }
 });
 
-// ===== AI ENDPOINTS (MOCK) =====
+// ===== AI ENDPOINTS (Gemini if configured, otherwise mock) =====
 
-app.post('/api/ai/chat', (req, res) => {
+async function generateWithGemini(prompt) {
+  if (!geminiEnabled) throw new Error('Gemini API key not configured');
+
+  // Construct REST endpoint for Gemini API v1beta
+  const url = `${GEMINI_BASE}/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
+
+  const body = {
+    contents: [
+      {
+        parts: [
+          { text: prompt }
+        ]
+      }
+    ]
+  };
+
+  const resp = await axios.post(url, body, { timeout: 20000 });
+  const data = resp.data;
+
+  // Extract text from Gemini response
+  if (!data) return '';
+  if (data.candidates && data.candidates[0]) {
+    const c = data.candidates[0];
+    if (c.content && c.content.parts && c.content.parts[0]) {
+      return c.content.parts[0].text || '';
+    }
+  }
+  // Fallback: stringify entire response
+  return JSON.stringify(data);
+}
+
+app.post('/api/ai/chat', async (req, res) => {
   try {
     const { message, context } = req.body || {};
     if (!message || !context) return res.status(400).json({ error: 'message et context requis' });
 
-    // Simple rule-based mock reply
+    // If Gemini client available, use it; otherwise return mock
+    if (geminiEnabled && GEMINI_API_KEY) {
+      const systemPrompt = context === 'training'
+        ? `Tu es un entraîneur personnel motivant et compétent. Tu donnes des conseils spécifiques et adaptés sur l'entraînement, la technique, la progression et la récupération. Tu utilises un ton amical et encourageant. Réponds toujours en français. IMPORTANT: Limite ta réponse à maximum 300 caractères, sois concis et direct.`
+        : `Tu es un nutritionniste expert et bienveillant. Tu donnes des conseils personnalisés sur l'alimentation, l'hydratation et les compléments. Tu utilises un ton amical et motivant. Réponds toujours en français. IMPORTANT: Limite ta réponse à maximum 300 caractères, sois concis et direct.`;
+      
+      const userMessage = `${systemPrompt}\n\nUtilisateur: ${message}`;
+      try {
+        let text = await generateWithGemini(userMessage);
+        // Limiter à 300 caractères côté serveur aussi
+        if (text.length > 300) {
+          text = text.substring(0, 297) + '...';
+        }
+        return res.json({ success: true, response: text, timestamp: new Date().toISOString() });
+      } catch (e) {
+        console.error('Gemini chat error:', e.message || e);
+        // fall through to mock below
+      }
+    }
+
+    // Mock fallback
     let reply = '';
     if (context === 'training') {
       reply = `Conseil rapide: alterne cardio et renforcement. Exemple: 3 séries de 10 répétitions pour les mouvements de force.`;
@@ -1355,12 +1457,51 @@ app.post('/api/ai/chat', (req, res) => {
   }
 });
 
-app.post('/api/ai/generate-training', (req, res) => {
+app.post('/api/ai/generate-training', async (req, res) => {
   try {
     const { objectives, level, durationPerWeek, availableEquipment, constraints } = req.body || {};
     if (!objectives || !level || !durationPerWeek) return res.status(400).json({ error: 'objectives, level, et durationPerWeek requis' });
 
-    // Build a simple program mock
+    if (genaiClient) {
+      const prompt = `Génère un programme d'entraînement en JSON strict. ` +
+        `Champs requis: id, name, description, duration (minutes), difficulty, objectives (array), exercises (array d'objets {name,sets,reps,rest,description}), schedule (object jours->exercices). ` +
+        `Contexte utilisateur: objectives=${JSON.stringify(objectives)}, level=${level}, durationPerWeek=${durationPerWeek}, availableEquipment=${JSON.stringify(availableEquipment)}, constraints=${JSON.stringify(constraints)}. ` +
+        `Réponds uniquement par un objet JSON valide.`;
+      try {
+        const text = await generateWithGemini(prompt);
+        try {
+          const parsed = JSON.parse(text);
+          // normalize exercise names if present
+          if (parsed && parsed.workouts) {
+            parsed.workouts.forEach(w => {
+              if (w.exercises && Array.isArray(w.exercises)) {
+                w.exercises.forEach(ex => {
+                  if (ex.name) ex.name = normalizeExerciseName(ex.name);
+                });
+              }
+            });
+          }
+          // Validate against schema
+          if (trainingSchema) {
+            const validate = ajv.getSchema('trainingProgram') || ajv.compile(trainingSchema);
+            const valid = validate(parsed);
+            if (!valid) {
+              console.warn('Validation failed for Gemini training output:', validate.errors);
+              return res.status(201).json({ success: true, trainingRaw: parsed, validationErrors: validate.errors, generatedAt: new Date().toISOString() });
+            }
+          }
+          return res.status(201).json({ success: true, training: parsed, generatedAt: new Date().toISOString() });
+        } catch (parseErr) {
+          console.warn('Gemini returned non-JSON for training, returning raw text');
+          return res.status(201).json({ success: true, trainingRaw: text, generatedAt: new Date().toISOString() });
+        }
+      } catch (e) {
+        console.error('Gemini generate-training error:', e.message || e);
+        // fall through to mock below
+      }
+    }
+
+    // Mock fallback
     const program = {
       id: `prog_${Date.now()}`,
       name: `${level} - Programme ${durationPerWeek}j/semaine`,
@@ -1386,10 +1527,29 @@ app.post('/api/ai/generate-training', (req, res) => {
   }
 });
 
-app.post('/api/ai/generate-nutrition', (req, res) => {
+app.post('/api/ai/generate-nutrition', async (req, res) => {
   try {
     const { objectives, dietType, calorieGoal, restrictions, mealsPerDay } = req.body || {};
     if (!objectives || !dietType || !calorieGoal) return res.status(400).json({ error: 'objectives, dietType, et calorieGoal requis' });
+
+    if (genaiClient) {
+      const prompt = `Génère un plan de nutrition en JSON strict avec champs: plan (name,description,totalCalories,macros), meals (array d'objets {id,name,timing,calories,protein,carbs,fat,ingredients,instructions}), tips (array). ` +
+        `Contexte: objectives=${JSON.stringify(objectives)}, dietType=${dietType}, calorieGoal=${calorieGoal}, restrictions=${JSON.stringify(restrictions)}, mealsPerDay=${mealsPerDay}. ` +
+        `Réponds uniquement par un objet JSON valide.`;
+      try {
+        const text = await generateWithGemini(prompt);
+        try {
+          const parsed = JSON.parse(text);
+          return res.status(201).json({ success: true, nutrition: parsed, generatedAt: new Date().toISOString() });
+        } catch (parseErr) {
+          console.warn('Gemini returned non-JSON for nutrition, returning raw text');
+          return res.status(201).json({ success: true, nutritionRaw: text, generatedAt: new Date().toISOString() });
+        }
+      } catch (e) {
+        console.error('Gemini generate-nutrition error:', e.message || e);
+        // fall through to mock
+      }
+    }
 
     const plan = {
       plan: {
@@ -1416,6 +1576,29 @@ app.post('/api/ai/generate-nutrition', (req, res) => {
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
+});
+
+// ===== TIPS ENDPOINTS =====
+
+// Load tips data at startup
+let trainingTips = [];
+let nutritionTips = [];
+try {
+  const trainingTipsPath = path.join(__dirname, 'data', 'training_tips.json');
+  const nutritionTipsPath = path.join(__dirname, 'data', 'nutrition_tips.json');
+  trainingTips = JSON.parse(fs.readFileSync(trainingTipsPath, 'utf8')).tips || [];
+  nutritionTips = JSON.parse(fs.readFileSync(nutritionTipsPath, 'utf8')).tips || [];
+  console.log(`✅ Loaded ${trainingTips.length} training tips and ${nutritionTips.length} nutrition tips.`);
+} catch (e) {
+  console.warn('⚠️ Could not load tips:', e.message || e);
+}
+
+app.get('/api/tips/training', (req, res) => {
+  res.json({ tips: trainingTips });
+});
+
+app.get('/api/tips/nutrition', (req, res) => {
+  res.json({ tips: nutritionTips });
 });
 
 // ===== DÉMARRAGE DU SERVEUR =====

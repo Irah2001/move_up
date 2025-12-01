@@ -103,11 +103,25 @@ class _NutritionistChatScreenState extends State<NutritionistChatScreen> {
         child: Column(
           children: [
             Expanded(
-              child: ListView.builder(
-                controller: _scrollController,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                itemCount: _messages.length,
-                itemBuilder: (context, i) => _buildBubble(_messages[i]),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      height: _messages.isNotEmpty
+                          ? 300
+                          : null,
+                      child: ListView.builder(
+                        controller: _scrollController,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        itemCount: _messages.length,
+                        itemBuilder: (context, i) => _buildBubble(_messages[i]),
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             if (_loading) const LinearProgressIndicator(),

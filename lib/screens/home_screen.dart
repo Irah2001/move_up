@@ -5,6 +5,7 @@ import 'package:move_up/screens/ai_chat_screen.dart';
 import 'package:move_up/screens/nutritionist_chat_screen.dart';
 import 'package:move_up/models/training_model.dart';
 import 'package:move_up/models/nutrition_model.dart';
+import 'package:move_up/widgets/tip_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -1007,6 +1008,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
+          ),
+          // Conseil du jour nutrition
+          TipCard(
+            title: 'Conseil nutrition',
+            tip: 'Privilégiez les repas riches en fibres et en protéines pour favoriser la satiété et la récupération.',
+            accentColor: Color(0xFFDAFF3F),
+            icon: Icons.restaurant_menu,
           ),
           const SizedBox(height: 16),
 

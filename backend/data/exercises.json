@@ -1,0 +1,7 @@
+{
+  "squat": { "id": "ex_squat", "name": "Squat", "muscles": ["quadriceps", "fessiers"], "equipment": ["barre","haltères"] },
+  "deadlift": { "id": "ex_deadlift", "name": "Soulevé de terre", "muscles": ["ischio-jambiers","fessiers","bas du dos"], "equipment": ["barre"] },
+  "push_up": { "id": "ex_pushup", "name": "Pompes", "muscles": ["pectoraux","triceps"], "equipment": [] },
+  "row": { "id": "ex_row", "name": "Rowing", "muscles": ["dos","biceps"], "equipment": ["haltères","barre"] },
+  "plank": { "id": "ex_plank", "name": "Planche", "muscles": ["abdominaux"], "equipment": [] }
+}
