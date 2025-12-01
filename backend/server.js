@@ -1,0 +1,1432 @@
+const express = require('express');
+const cors = require('cors');
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
+require('dotenv').config();
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// ===== SWAGGER CONFIGURATION =====
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Move Up API',
+      version: '1.0.0',
+      description: 'API pour l\'application Move Up - Entraînement et Nutrition',
+      contact: {
+        name: 'Move Up Team',
+        email: 'support@moveup.com'
+      },
+      license: {
+        name: 'MIT'
+      }
+    },
+    servers: [
+      {
+        url: 'http://localhost:3000',
+        description: 'Serveur de développement'
+      },
+      {
+        url: 'https://api.moveup.com',
+        description: 'Serveur de production'
+      }
+    ],
+    components: {
+      schemas: {
+        TrainingCategory: {
+          type: 'object',
+          required: ['id', 'name', 'description', 'programs'],
+          properties: {
+            id: {
+              type: 'string',
+              example: 'cardio',
+              description: 'Identifiant unique de la catégorie'
+            },
+            name: {
+              type: 'string',
+              example: 'CARDIO',
+              description: 'Nom de la catégorie'
+            },
+            description: {
+              type: 'string',
+              example: 'Améliorez votre endurance',
+              description: 'Description détaillée'
+            },
+            imageUrl: {
+              type: 'string',
+              example: 'assets/images/cardio.jpg',
+              description: 'URL de l\'image'
+            },
+            icon: {
+              type: 'string',
+              example: 'directions_run',
+              description: 'Icône Material Design'
+            },
+            programs: {
+              type: 'array',
+              items: {
+                $ref: '#/components/schemas/TrainingProgram'
+              }
+            }
+          }
+        },
+        TrainingProgram: {
+          type: 'object',
+          required: ['id', 'name', 'difficulty', 'duration', 'description'],
+          properties: {
+            id: {
+              type: 'string',
+              example: 'cardio_1',
+              description: 'Identifiant unique du programme'
+            },
+            name: {
+              type: 'string',
+              example: 'Débutant - 20 min',
+              description: 'Nom du programme'
+            },
+            difficulty: {
+              type: 'string',
+              enum: ['Facile', 'Moyen', 'Difficile'],
+              example: 'Facile',
+              description: 'Niveau de difficulté'
+            },
+            duration: {
+              type: 'integer',
+              example: 20,
+              description: 'Durée en minutes'
+            },
+            description: {
+              type: 'string',
+              example: 'Parfait pour commencer',
+              description: 'Description du programme'
+            },
+            imageUrl: {
+              type: 'string',
+              example: 'assets/images/cardio_beginner.jpg',
+              description: 'URL de l\'image'
+            },
+            objective: {
+              type: 'string',
+              enum: ['muscle', 'perte_poids', 'endurance', 'sante'],
+              example: 'endurance',
+              description: 'Objectif du programme'
+            },
+            exercises: {
+              type: 'array',
+              items: {
+                $ref: '#/components/schemas/Exercise'
+              }
+            }
+          }
+        },
+        Exercise: {
+          type: 'object',
+          required: ['name', 'duration'],
+          properties: {
+            name: {
+              type: 'string',
+              example: 'Échauffement',
+              description: 'Nom de l\'exercice'
+            },
+            duration: {
+              type: 'integer',
+              example: 3,
+              description: 'Durée en minutes'
+            },
+            rest: {
+              type: 'integer',
+              example: 0,
+              description: 'Temps de repos en minutes'
+            },
+            imageUrl: {
+              type: 'string',
+              example: 'assets/images/warm_up.jpg',
+              description: 'URL de la démonstration'
+            }
+          }
+        },
+        Meal: {
+          type: 'object',
+          required: ['id', 'name', 'description', 'calories', 'protein', 'carbs', 'fat'],
+          properties: {
+            id: {
+              type: 'string',
+              example: 'meal_1',
+              description: 'Identifiant unique du repas'
+            },
+            name: {
+              type: 'string',
+              example: 'Poulet Grillé et Riz',
+              description: 'Nom du repas'
+            },
+            description: {
+              type: 'string',
+              example: 'Équilibré et riche en protéines',
+              description: 'Description du repas'
+            },
+            calories: {
+              type: 'integer',
+              example: 650,
+              description: 'Calories totales'
+            },
+            protein: {
+              type: 'integer',
+              example: 50,
+              description: 'Protéines en grammes'
+            },
+            carbs: {
+              type: 'integer',
+              example: 55,
+              description: 'Glucides en grammes'
+            },
+            fat: {
+              type: 'integer',
+              example: 12,
+              description: 'Lipides en grammes'
+            },
+            prepTime: {
+              type: 'integer',
+              example: 25,
+              description: 'Temps de préparation en minutes'
+            },
+            imageUrl: {
+              type: 'string',
+              example: 'assets/images/chicken.jpg',
+              description: 'URL de l\'image'
+            },
+            objectives: {
+              type: 'array',
+              items: {
+                type: 'string',
+                enum: ['muscle', 'perte_poids', 'endurance', 'sante']
+              },
+              example: ['muscle'],
+              description: 'Objectifs correspondants'
+            }
+          }
+        },
+        Training: {
+          type: 'object',
+          required: ['userId', 'programId', 'duration'],
+          properties: {
+            id: {
+              type: 'string',
+              example: 'training_1701388800000',
+              description: 'Identifiant unique de l\'entraînement'
+            },
+            userId: {
+              type: 'string',
+              example: 'user_123',
+              description: 'ID de l\'utilisateur'
+            },
+            programId: {
+              type: 'string',
+              example: 'cardio_1',
+              description: 'ID du programme'
+            },
+            duration: {
+              type: 'integer',
+              example: 20,
+              description: 'Durée réelle en minutes'
+            },
+            caloriesBurned: {
+              type: 'integer',
+              example: 250,
+              description: 'Calories brûlées'
+            },
+            completedAt: {
+              type: 'string',
+              format: 'date-time',
+              example: '2025-12-01T15:30:00Z',
+              description: 'Date/heure de fin'
+            },
+            status: {
+              type: 'string',
+              enum: ['completed', 'paused', 'abandoned'],
+              example: 'completed',
+              description: 'Statut de l\'entraînement'
+            }
+          }
+        },
+        TrainingStats: {
+          type: 'object',
+          properties: {
+            userId: {
+              type: 'string',
+              example: 'user_123'
+            },
+            totalWorkouts: {
+              type: 'integer',
+              example: 42
+            },
+            totalCaloriesBurned: {
+              type: 'integer',
+              example: 12500
+            },
+            totalMinutes: {
+              type: 'integer',
+              example: 1240
+            },
+            averagePerWeek: {
+              type: 'number',
+              example: 6
+            },
+            currentStreak: {
+              type: 'integer',
+              example: 5,
+              description: 'Nombre de jours consécutifs'
+            }
+          }
+        },
+        
+        Error: {
+          type: 'object',
+          properties: {
+            error: {
+              type: 'string',
+              example: 'Description de l\'erreur'
+            },
+            statusCode: {
+              type: 'integer',
+              example: 400
+            }
+          }
+        }
+      },
+      responses: {
+        NotFound: {
+          description: 'Ressource non trouvée',
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/Error'
+              }
+            }
+          }
+        },
+        BadRequest: {
+          description: 'Mauvaise requête',
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/Error'
+              }
+            }
+          }
+        },
+        ServerError: {
+          description: 'Erreur serveur',
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/Error'
+              }
+            }
+          }
+        }
+      }
+      ,
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          description: 'JWT Authorization header using the Bearer scheme. Example: "Authorization: Bearer {token}"'
+        }
+      }
+    },
+    tags: [
+      {
+        name: 'Trainings',
+        description: 'Gestion des entraînements et catégories'
+      },
+      {
+        name: 'Nutrition',
+        description: 'Gestion des repas et plans nutritionnels'
+      }
+    ]
+  },
+  apis: ['./server.js']
+};
+
+const specs = swaggerJsdoc(swaggerOptions);
+
+// Route pour la documentation Swagger
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, { 
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Move Up API Documentation'
+}));
+
+// ===== DONNÉES EXEMPLE =====
+const trainings = [
+  {
+    id: 'cardio',
+    name: 'CARDIO',
+    description: 'Améliorez votre endurance',
+    imageUrl: 'assets/images/cardio.jpg',
+    icon: 'directions_run',
+    programs: [
+      {
+        id: 'cardio_1',
+        name: 'Débutant - 20 min',
+        difficulty: 'Facile',
+        duration: 20,
+        description: 'Parfait pour commencer',
+        imageUrl: 'assets/images/cardio_beginner.jpg',
+        objective: 'endurance',
+        exercises: [
+          { name: 'Échauffement', duration: 3, rest: 0, imageUrl: 'assets/images/warm_up.jpg' },
+          { name: 'Course légère', duration: 15, rest: 2, imageUrl: 'assets/images/running.jpg' },
+          { name: 'Retour au calme', duration: 2, rest: 0, imageUrl: 'assets/images/cool_down.jpg' }
+        ]
+      },
+      {
+        id: 'cardio_2',
+        name: 'Intermédiaire - 40 min',
+        difficulty: 'Moyen',
+        duration: 40,
+        description: 'Pour progresser',
+        imageUrl: 'assets/images/cardio_intermediate.jpg',
+        objective: 'endurance',
+        exercises: []
+      }
+    ]
+  },
+  {
+    id: 'muscle',
+    name: 'MUSCLE',
+    description: 'Développez vos muscles',
+    imageUrl: 'assets/images/muscle.jpg',
+    icon: 'fitness_center',
+    programs: [
+      {
+        id: 'muscle_1',
+        name: 'Haut du corps - 30 min',
+        difficulty: 'Facile',
+        duration: 30,
+        description: 'Bras, épaules, poitrine',
+        imageUrl: 'assets/images/upper_body.jpg',
+        objective: 'muscle',
+        exercises: []
+      }
+    ]
+  }
+];
+
+const meals = [
+  {
+    id: 'meal_1',
+    name: 'Poulet Grillé et Riz',
+    description: 'Équilibré et riche en protéines',
+    calories: 650,
+    protein: 50,
+    carbs: 55,
+    fat: 12,
+    prepTime: 25,
+    imageUrl: 'assets/images/chicken.jpg',
+    objectives: ['muscle']
+  },
+  {
+    id: 'meal_2',
+    name: 'Salade Protéinée',
+    description: 'Léger et nutritif',
+    calories: 380,
+    protein: 35,
+    carbs: 25,
+    fat: 8,
+    prepTime: 10,
+    imageUrl: 'assets/images/salad.jpg',
+    objectives: ['perte_poids', 'sante']
+  },
+  {
+    id: 'meal_3',
+    name: 'Smoothie Protéiné',
+    description: 'Parfait après le workout',
+    calories: 320,
+    protein: 30,
+    carbs: 35,
+    fat: 5,
+    prepTime: 5,
+    imageUrl: 'assets/images/smoothie.jpg',
+    objectives: ['muscle', 'endurance']
+  }
+];
+
+// ===== STOCKAGE UTILISATEUR (en mémoire pour dev) =====
+const userTrainings = []; // { id, userId, program, savedAt }
+
+// ===== ROUTES HEALTH CHECK =====
+
+// ===== ROUTES ENTRAÎNEMENTS =====
+
+// GET toutes les catégories d'entraînement
+app.get('/api/trainings/categories', (req, res) => {
+  try {
+    res.json(trainings);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET une catégorie spécifique
+app.get('/api/trainings/categories/:categoryId', (req, res) => {
+  try {
+    const category = trainings.find(t => t.id === req.params.categoryId);
+    if (category) {
+      res.json(category);
+    } else {
+      res.status(404).json({ error: 'Catégorie non trouvée' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET tous les programmes
+app.get('/api/trainings/programs', (req, res) => {
+  try {
+    const programs = trainings.flatMap(category => category.programs);
+    res.json(programs);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET programmes par catégorie
+app.get('/api/trainings/programs/category/:categoryId', (req, res) => {
+  try {
+    const category = trainings.find(t => t.id === req.params.categoryId);
+    if (category) {
+      res.json(category.programs);
+    } else {
+      res.status(404).json({ error: 'Catégorie non trouvée' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET un programme spécifique
+app.get('/api/trainings/programs/:programId', (req, res) => {
+  try {
+    const program = trainings
+      .flatMap(t => t.programs)
+      .find(p => p.id === req.params.programId);
+    if (program) {
+      res.json(program);
+    } else {
+      res.status(404).json({ error: 'Programme non trouvé' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST créer un nouvel entraînement (logger un workout)
+app.post('/api/trainings/create', (req, res) => {
+  try {
+    const { userId, programId, duration, caloriesBurned } = req.body;
+    
+    if (!userId || !programId) {
+      return res.status(400).json({ error: 'userId et programId requis' });
+    }
+
+    const training = {
+      id: `training_${Date.now()}`,
+      userId,
+      programId,
+      duration,
+      caloriesBurned,
+      completedAt: new Date().toISOString(),
+      status: 'completed'
+    };
+
+    res.status(201).json(training);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * @swagger
+ * /api/trainings/save:
+ *   post:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Sauvegarder un programme généré pour un utilisateur
+ *     tags: [Trainings]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [userId, program]
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 example: user_123
+ *               program:
+ *                 type: object
+ *     responses:
+ *       201:
+ *         description: Programme sauvegardé
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 userId:
+ *                   type: string
+ *                 program:
+ *                   type: object
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ */
+app.post('/api/trainings/save', (req, res) => {
+  try {
+    const { userId, program } = req.body;
+    if (!userId || !program) return res.status(400).json({ error: 'userId et program requis' });
+    const saved = {
+      id: `user_training_${Date.now()}`,
+      userId,
+      program,
+      savedAt: new Date().toISOString()
+    };
+    userTrainings.push(saved);
+    res.status(201).json(saved);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * @swagger
+ * /api/trainings/user/{userId}:
+ *   get:
+ *     summary: Récupérer les programmes sauvegardés d'un utilisateur
+ *     tags: [Trainings]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Liste des programmes sauvegardés
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ */
+app.get('/api/trainings/user/:userId', (req, res) => {
+  try {
+    const { userId } = req.params;
+    const list = userTrainings.filter(t => t.userId === userId);
+    res.json(list);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * @swagger
+ * /api/trainings/user/{userId}/{trainingId}:
+ *   delete:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Supprimer un entraînement sauvegardé pour un utilisateur
+ *     tags: [Trainings]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: trainingId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Suppression réussie
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ */
+app.delete('/api/trainings/user/:userId/:trainingId', (req, res) => {
+  try {
+    const { userId, trainingId } = req.params;
+    const idx = userTrainings.findIndex(t => t.userId === userId && t.id === trainingId);
+    if (idx === -1) return res.status(404).json({ error: 'Entraînement non trouvé' });
+    userTrainings.splice(idx, 1);
+    res.json({ success: true, trainingId });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+// GET historique d'entraînement (utilisateur)
+app.get('/api/trainings/history/:userId', (req, res) => {
+  try {
+    // Simuler un historique
+    const history = [
+      {
+        id: 'training_1',
+        userId: req.params.userId,
+        programId: 'cardio_1',
+        duration: 20,
+        caloriesBurned: 250,
+        completedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: 'training_2',
+        userId: req.params.userId,
+        programId: 'muscle_1',
+        duration: 30,
+        caloriesBurned: 350,
+        completedAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+      }
+    ];
+    res.json(history);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET statistiques d'entraînement
+app.get('/api/trainings/stats/:userId', (req, res) => {
+  try {
+    const stats = {
+      userId: req.params.userId,
+      totalWorkouts: 42,
+      totalCaloriesBurned: 12500,
+      totalMinutes: 1240,
+      averagePerWeek: 6,
+      currentStreak: 5
+    };
+    res.json(stats);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ===== CRUD Entraînements (categories & programs) =====
+
+/**
+ * @swagger
+ * /api/trainings/categories:
+ *   post:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Créer une nouvelle catégorie d'entraînement
+ *     tags: [Trainings]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name]
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 example: cardio_new
+ *               name:
+ *                 type: string
+ *                 example: CARDIO
+ *               description:
+ *                 type: string
+ *                 example: Améliorez votre endurance
+ *               imageUrl:
+ *                 type: string
+ *                 example: assets/images/cardio.jpg
+ *     responses:
+ *       201:
+ *         description: Catégorie créée
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/TrainingCategory'
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ */
+app.post('/api/trainings/categories', (req, res) => {
+  try {
+    const { id, name, description, imageUrl, icon } = req.body;
+    if (!name) return res.status(400).json({ error: 'name requis' });
+    const newCategory = {
+      id: id || `cat_${Date.now()}`,
+      name,
+      description: description || '',
+      imageUrl: imageUrl || '',
+      icon: icon || 'fitness_center',
+      programs: []
+    };
+    trainings.push(newCategory);
+    res.status(201).json(newCategory);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * @swagger
+ * /api/trainings/categories/{categoryId}:
+ *   put:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Mettre à jour une catégorie d'entraînement
+ *     tags: [Trainings]
+ *     parameters:
+ *       - in: path
+ *         name: categoryId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               imageUrl:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Catégorie mise à jour
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/TrainingCategory'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ */
+app.put('/api/trainings/categories/:categoryId', (req, res) => {
+  try {
+    const { categoryId } = req.params;
+    const cat = trainings.find(c => c.id === categoryId);
+    if (!cat) return res.status(404).json({ error: 'Catégorie non trouvée' });
+    const { name, description, imageUrl, icon } = req.body;
+    if (name) cat.name = name;
+    if (description) cat.description = description;
+    if (imageUrl) cat.imageUrl = imageUrl;
+    if (icon) cat.icon = icon;
+    res.json(cat);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * @swagger
+ * /api/trainings/categories/{categoryId}:
+ *   delete:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Supprimer une catégorie d'entraînement
+ *     tags: [Trainings]
+ *     parameters:
+ *       - in: path
+ *         name: categoryId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Catégorie supprimée
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ */
+app.delete('/api/trainings/categories/:categoryId', (req, res) => {
+  try {
+    const { categoryId } = req.params;
+    const idx = trainings.findIndex(c => c.id === categoryId);
+    if (idx === -1) return res.status(404).json({ error: 'Catégorie non trouvée' });
+    trainings.splice(idx, 1);
+    res.json({ success: true, categoryId });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * @swagger
+ * /api/trainings/programs:
+ *   post:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Créer un nouveau programme d'entraînement (dans une catégorie)
+ *     tags: [Trainings]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [categoryId, name]
+ *             properties:
+ *               categoryId:
+ *                 type: string
+ *                 example: cardio
+ *               id:
+ *                 type: string
+ *                 example: cardio_3
+ *               name:
+ *                 type: string
+ *                 example: Nouvel entraînement
+ *               difficulty:
+ *                 type: string
+ *               duration:
+ *                 type: integer
+ *               description:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Programme créé
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/TrainingProgram'
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ */
+app.post('/api/trainings/programs', (req, res) => {
+  try {
+    const { categoryId, id, name, difficulty, duration, description, imageUrl, objective } = req.body;
+    if (!categoryId || !name) return res.status(400).json({ error: 'categoryId et name requis' });
+    const cat = trainings.find(c => c.id === categoryId);
+    if (!cat) return res.status(404).json({ error: 'Catégorie non trouvée' });
+    const newProgram = {
+      id: id || `prog_${Date.now()}`,
+      name,
+      difficulty: difficulty || 'Facile',
+      duration: duration || 20,
+      description: description || '',
+      imageUrl: imageUrl || '',
+      objective: objective || '' ,
+      exercises: []
+    };
+    cat.programs.push(newProgram);
+    res.status(201).json(newProgram);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * @swagger
+ * /api/trainings/programs/{programId}:
+ *   put:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Mettre à jour un programme d'entraînement
+ *     tags: [Trainings]
+ *     parameters:
+ *       - in: path
+ *         name: programId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               duration:
+ *                 type: integer
+ *               description:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Programme mis à jour
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/TrainingProgram'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ */
+app.put('/api/trainings/programs/:programId', (req, res) => {
+  try {
+    const { programId } = req.params;
+    let found = null;
+    for (const cat of trainings) {
+      const prog = cat.programs.find(p => p.id === programId);
+      if (prog) { found = prog; break; }
+    }
+    if (!found) return res.status(404).json({ error: 'Programme non trouvé' });
+    const { name, duration, description, difficulty, imageUrl, objective } = req.body;
+    if (name) found.name = name;
+    if (duration) found.duration = duration;
+    if (description) found.description = description;
+    if (difficulty) found.difficulty = difficulty;
+    if (imageUrl) found.imageUrl = imageUrl;
+    if (objective) found.objective = objective;
+    res.json(found);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * @swagger
+ * /api/trainings/programs/{programId}:
+ *   delete:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Supprimer un programme d'entraînement
+ *     tags: [Trainings]
+ *     parameters:
+ *       - in: path
+ *         name: programId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Programme supprimé
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ */
+app.delete('/api/trainings/programs/:programId', (req, res) => {
+  try {
+    const { programId } = req.params;
+    for (const cat of trainings) {
+      const idx = cat.programs.findIndex(p => p.id === programId);
+      if (idx !== -1) {
+        cat.programs.splice(idx, 1);
+        return res.json({ success: true, programId });
+      }
+    }
+    return res.status(404).json({ error: 'Programme non trouvé' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ===== ROUTES NUTRITION =====
+
+// GET tous les repas
+app.get('/api/nutrition/meals', (req, res) => {
+  try {
+    res.json(meals);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET repas par objectif
+app.get('/api/nutrition/meals/objective/:objective', (req, res) => {
+  try {
+    const filtered = meals.filter(meal => 
+      meal.objectives.includes(req.params.objective)
+    );
+    res.json(filtered);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET un repas spécifique
+app.get('/api/nutrition/meals/:mealId', (req, res) => {
+  try {
+    const meal = meals.find(m => m.id === req.params.mealId);
+    if (meal) {
+      res.json(meal);
+    } else {
+      res.status(404).json({ error: 'Repas non trouvé' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST ajouter un repas aux favoris
+app.post('/api/nutrition/favorites/add', (req, res) => {
+  try {
+    const { userId, mealId } = req.body;
+    
+    if (!userId || !mealId) {
+      return res.status(400).json({ error: 'userId et mealId requis' });
+    }
+
+    res.status(201).json({
+      success: true,
+      userId,
+      mealId,
+      addedAt: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST retirer d'un repas des favoris
+app.delete('/api/nutrition/favorites/remove', (req, res) => {
+  try {
+    const { userId, mealId } = req.body;
+    
+    if (!userId || !mealId) {
+      return res.status(400).json({ error: 'userId et mealId requis' });
+    }
+
+    res.json({
+      success: true,
+      userId,
+      mealId,
+      removedAt: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET favoris d'un utilisateur
+app.get('/api/nutrition/favorites/:userId', (req, res) => {
+  try {
+    // Simuler les favoris
+    const favorites = meals.slice(0, 2);
+    res.json(favorites);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET statistiques nutrition
+app.get('/api/nutrition/stats/:userId', (req, res) => {
+  try {
+    const stats = {
+      userId: req.params.userId,
+      averageCaloriesPerDay: 2100,
+      totalMealsLogged: 87,
+      favoriteMeals: 8,
+      nutritionStreak: 12
+    };
+    res.json(stats);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ===== CRUD NUTRITION (Meals) =====
+
+/**
+ * @swagger
+ * /api/nutrition/meals:
+ *   post:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Créer un nouveau repas
+ *     tags: [Nutrition]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name, calories]
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 example: meal_new_001
+ *               name:
+ *                 type: string
+ *                 example: Poulet grillé avec riz
+ *               calories:
+ *                 type: integer
+ *                 example: 520
+ *               protein:
+ *                 type: number
+ *                 example: 35
+ *               carbs:
+ *                 type: number
+ *                 example: 45
+ *               fat:
+ *                 type: number
+ *                 example: 12
+ *               description:
+ *                 type: string
+ *                 example: Repas équilibré riche en protéines
+ *               imageUrl:
+ *                 type: string
+ *                 example: assets/images/chicken_rice.jpg
+ *               objectives:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 example: ["muscle", "sain"]
+ *               prepTime:
+ *                 type: integer
+ *                 example: 15
+ *     responses:
+ *       201:
+ *         description: Repas créé
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Meal'
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ */
+app.post('/api/nutrition/meals', (req, res) => {
+  try {
+    const { id, name, calories, protein, carbs, fat, description, imageUrl, objectives, prepTime } = req.body;
+    
+    if (!name || calories === undefined) {
+      return res.status(400).json({ error: 'name et calories requis' });
+    }
+    
+    const newMeal = {
+      id: id || `meal_${Date.now()}`,
+      name,
+      calories,
+      protein: protein || 0,
+      carbs: carbs || 0,
+      fat: fat || 0,
+      description: description || '',
+      imageUrl: imageUrl || '',
+      objectives: objectives || [],
+      prepTime: prepTime || 0,
+      createdAt: new Date().toISOString()
+    };
+    
+    meals.push(newMeal);
+    res.status(201).json(newMeal);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * @swagger
+ * /api/nutrition/meals/{mealId}:
+ *   put:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Mettre à jour un repas
+ *     tags: [Nutrition]
+ *     parameters:
+ *       - in: path
+ *         name: mealId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               calories:
+ *                 type: integer
+ *               protein:
+ *                 type: number
+ *               carbs:
+ *                 type: number
+ *               fat:
+ *                 type: number
+ *               description:
+ *                 type: string
+ *               imageUrl:
+ *                 type: string
+ *               objectives:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *     responses:
+ *       200:
+ *         description: Repas mis à jour
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Meal'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ */
+app.put('/api/nutrition/meals/:mealId', (req, res) => {
+  try {
+    const { mealId } = req.params;
+    const meal = meals.find(m => m.id === mealId);
+    
+    if (!meal) {
+      return res.status(404).json({ error: 'Repas non trouvé' });
+    }
+    
+    const { name, calories, protein, carbs, fat, description, imageUrl, objectives, prepTime } = req.body;
+    
+    if (name) meal.name = name;
+    if (calories !== undefined) meal.calories = calories;
+    if (protein !== undefined) meal.protein = protein;
+    if (carbs !== undefined) meal.carbs = carbs;
+    if (fat !== undefined) meal.fat = fat;
+    if (description !== undefined) meal.description = description;
+    if (imageUrl !== undefined) meal.imageUrl = imageUrl;
+    if (objectives) meal.objectives = objectives;
+    if (prepTime !== undefined) meal.prepTime = prepTime;
+    
+    meal.updatedAt = new Date().toISOString();
+    res.json(meal);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * @swagger
+ * /api/nutrition/meals/{mealId}:
+ *   delete:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Supprimer un repas
+ *     tags: [Nutrition]
+ *     parameters:
+ *       - in: path
+ *         name: mealId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Repas supprimé
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ */
+app.delete('/api/nutrition/meals/:mealId', (req, res) => {
+  try {
+    const { mealId } = req.params;
+    const idx = meals.findIndex(m => m.id === mealId);
+    
+    if (idx === -1) {
+      return res.status(404).json({ error: 'Repas non trouvé' });
+    }
+    
+    meals.splice(idx, 1);
+    res.json({ success: true, mealId });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ===== AI ENDPOINTS (MOCK) =====
+
+app.post('/api/ai/chat', (req, res) => {
+  try {
+    const { message, context } = req.body || {};
+    if (!message || !context) return res.status(400).json({ error: 'message et context requis' });
+
+    // Simple rule-based mock reply
+    let reply = '';
+    if (context === 'training') {
+      reply = `Conseil rapide: alterne cardio et renforcement. Exemple: 3 séries de 10 répétitions pour les mouvements de force.`;
+    } else if (context === 'nutrition') {
+      reply = `Conseil nutrition: vise un apport protéique après l'entraînement, et hydrate-toi régulièrement.`;
+    } else {
+      reply = `Désolé, je ne connais pas ce contexte.`;
+    }
+
+    return res.json({ success: true, response: reply, timestamp: new Date().toISOString() });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/ai/generate-training', (req, res) => {
+  try {
+    const { objectives, level, durationPerWeek, availableEquipment, constraints } = req.body || {};
+    if (!objectives || !level || !durationPerWeek) return res.status(400).json({ error: 'objectives, level, et durationPerWeek requis' });
+
+    // Build a simple program mock
+    const program = {
+      id: `prog_${Date.now()}`,
+      name: `${level} - Programme ${durationPerWeek}j/semaine`,
+      description: `Programme généré pour ${objectives.join(', ')}`,
+      duration: durationPerWeek * 30,
+      difficulty: level,
+      objectives: objectives,
+      exercises: [
+        { name: 'Échauffement', sets: 1, reps: '5-10min', rest: '0s', description: 'Marche ou vélo léger' },
+        { name: 'Squat', sets: 3, reps: '8-12', rest: '60s', description: 'Pieds écartés à la largeur des hanches' },
+        { name: 'Pompes', sets: 3, reps: '8-12', rest: '60s', description: 'Garde le corps droit' }
+      ],
+      schedule: {
+        monday: ['Échauffement', 'Squat'],
+        wednesday: ['Pompes'],
+        friday: ['Squat', 'Pompes']
+      }
+    };
+
+    return res.status(201).json({ success: true, training: program, generatedAt: new Date().toISOString() });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/ai/generate-nutrition', (req, res) => {
+  try {
+    const { objectives, dietType, calorieGoal, restrictions, mealsPerDay } = req.body || {};
+    if (!objectives || !dietType || !calorieGoal) return res.status(400).json({ error: 'objectives, dietType, et calorieGoal requis' });
+
+    const plan = {
+      plan: {
+        name: `Plan ${dietType} - ${calorieGoal} kcal`,
+        description: `Plan pour ${objectives.join(', ')}`,
+        totalCalories: calorieGoal,
+        macros: { protein: 30, carbs: 45, fat: 25 }
+      },
+      meals: Array.from({ length: mealsPerDay || 3 }).map((_, i) => ({
+        id: `meal_${i + 1}`,
+        name: `Repas ${i + 1}`,
+        timing: ['Petit-déjeuner', 'Déjeuner', 'Dîner'][i] || `Repas ${i + 1}`,
+        calories: Math.round(calorieGoal / (mealsPerDay || 3)),
+        protein: 25,
+        carbs: 60,
+        fat: 15,
+        ingredients: ['Ingrédient A', 'Ingrédient B'],
+        instructions: 'Préparer et déguster.'
+      })),
+      tips: ['Boire de l\'eau', 'Respecter les portions']
+    };
+
+    return res.status(201).json({ success: true, nutrition: plan, generatedAt: new Date().toISOString() });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// ===== DÉMARRAGE DU SERVEUR =====
+app.listen(PORT, () => {
+  console.log(`\n🚀 Serveur Move Up lancé sur http://localhost:${PORT}`);
+  console.log(`\n📚 Documentation Swagger: http://localhost:${PORT}/api-docs`);
+  console.log(`📝 API disponible sur http://localhost:${PORT}/api`);
+  console.log(`\n💪 Entraînements: http://localhost:${PORT}/api/trainings/categories`);
+  console.log(`🍎 Nutrition: http://localhost:${PORT}/api/nutrition/meals`);
+  console.log(`\n⚙️  Mode: ${process.env.NODE_ENV}`);
+  console.log(`\nAppuyez sur Ctrl+C pour arrêter le serveur\n`);
+});
+
+module.exports = app;

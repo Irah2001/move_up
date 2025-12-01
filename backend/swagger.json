@@ -1,0 +1,962 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Move Up API",
+    "version": "1.0.0",
+    "description": "API complète pour l'application Move Up - Gestion de l'entraînement et de la nutrition",
+    "contact": {
+      "name": "Move Up Team",
+      "email": "support@moveup.com",
+      "url": "https://moveup.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Serveur de développement",
+      "variables": {
+        "port": {
+          "default": "3000"
+        }
+      }
+    },
+    {
+      "url": "https://api.moveup.com",
+      "description": "Serveur de production"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Trainings",
+      "description": "Gestion des entraînements et catégories d'entraînement"
+    },
+    {
+      "name": "Nutrition",
+      "description": "Gestion des repas et plans nutritionnels"
+    }
+  ],
+  "paths": {
+    
+    "/api/trainings/categories": {
+      "get": {
+        "tags": ["Trainings"],
+        "summary": "Récupérer toutes les catégories d'entraînement",
+        "description": "Retourne la liste complète des catégories d'entraînement avec leurs programmes",
+        "operationId": "getTrainingCategories",
+        "responses": {
+          "200": {
+            "description": "Liste des catégories d'entraînement",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TrainingCategory"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/trainings/categories/{categoryId}": {
+      "get": {
+        "tags": ["Trainings"],
+        "summary": "Récupérer une catégorie spécifique",
+        "description": "Retourne les détails d'une catégorie d'entraînement avec tous ses programmes",
+        "operationId": "getTrainingCategory",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "description": "ID unique de la catégorie",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "cardio"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Catégorie d'entraînement trouvée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrainingCategory"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/trainings/programs": {
+      "get": {
+        "tags": ["Trainings"],
+        "summary": "Récupérer tous les programmes d'entraînement",
+        "description": "Retourne la liste complète de tous les programmes d'entraînement",
+        "operationId": "getTrainingPrograms",
+        "responses": {
+          "200": {
+            "description": "Liste de tous les programmes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TrainingProgram"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/trainings/programs/category/{categoryId}": {
+      "get": {
+        "tags": ["Trainings"],
+        "summary": "Récupérer les programmes d'une catégorie",
+        "description": "Retourne tous les programmes d'une catégorie spécifique",
+        "operationId": "getProgramsByCategory",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "description": "ID de la catégorie",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "cardio"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Programmes de la catégorie",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TrainingProgram"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/trainings/programs/{programId}": {
+      "get": {
+        "tags": ["Trainings"],
+        "summary": "Récupérer un programme spécifique",
+        "description": "Retourne les détails d'un programme d'entraînement",
+        "operationId": "getTrainingProgram",
+        "parameters": [
+          {
+            "name": "programId",
+            "in": "path",
+            "description": "ID du programme",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "cardio_1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Programme trouvé",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrainingProgram"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/trainings/create": {
+      "post": {
+        "tags": ["Trainings"],
+        "summary": "Logger un nouvel entraînement",
+        "description": "Crée un enregistrement d'entraînement complété",
+        "operationId": "createTraining",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["userId", "programId", "duration"],
+                "properties": {
+                  "userId": {
+                    "type": "string",
+                    "example": "user_123",
+                    "description": "ID unique de l'utilisateur"
+                  },
+                  "programId": {
+                    "type": "string",
+                    "example": "cardio_1",
+                    "description": "ID du programme d'entraînement"
+                  },
+                  "duration": {
+                    "type": "integer",
+                    "example": 20,
+                    "description": "Durée de l'entraînement en minutes"
+                  },
+                  "caloriesBurned": {
+                    "type": "integer",
+                    "example": 250,
+                    "description": "Calories brûlées"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Entraînement créé avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Training"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/trainings/history/{userId}": {
+      "get": {
+        "tags": ["Trainings"],
+        "summary": "Récupérer l'historique d'entraînement",
+        "description": "Retourne la liste de tous les entraînements complétés par un utilisateur",
+        "operationId": "getTrainingHistory",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "user_123"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Historique d'entraînement",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Training"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/trainings/stats/{userId}": {
+      "get": {
+        "tags": ["Trainings"],
+        "summary": "Récupérer les statistiques d'entraînement",
+        "description": "Retourne les statistiques agrégées d'entraînement pour un utilisateur",
+        "operationId": "getTrainingStats",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "user_123"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statistiques d'entraînement",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrainingStats"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/nutrition/meals": {
+      "get": {
+        "tags": ["Nutrition"],
+        "summary": "Récupérer tous les repas",
+        "description": "Retourne la liste complète de tous les repas disponibles",
+        "operationId": "getAllMeals",
+        "responses": {
+          "200": {
+            "description": "Liste de tous les repas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Meal"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/nutrition/meals/objective/{objective}": {
+      "get": {
+        "tags": ["Nutrition"],
+        "summary": "Récupérer les repas par objectif",
+        "description": "Retourne les repas correspondant à un objectif spécifique",
+        "operationId": "getMealsByObjective",
+        "parameters": [
+          {
+            "name": "objective",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["muscle", "perte_poids", "endurance", "sante"],
+              "example": "muscle"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Repas pour l'objectif",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Meal"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/nutrition/meals/{mealId}": {
+      "get": {
+        "tags": ["Nutrition"],
+        "summary": "Récupérer un repas spécifique",
+        "description": "Retourne les détails complets d'un repas",
+        "operationId": "getMeal",
+        "parameters": [
+          {
+            "name": "mealId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "meal_1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Repas trouvé",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Meal"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/nutrition/favorites/add": {
+      "post": {
+        "tags": ["Nutrition"],
+        "summary": "Ajouter un repas aux favoris",
+        "description": "Ajoute un repas à la liste des favoris d'un utilisateur",
+        "operationId": "addMealToFavorites",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["userId", "mealId"],
+                "properties": {
+                  "userId": {
+                    "type": "string",
+                    "example": "user_123"
+                  },
+                  "mealId": {
+                    "type": "string",
+                    "example": "meal_1"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Repas ajouté aux favoris",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "userId": {
+                      "type": "string"
+                    },
+                    "mealId": {
+                      "type": "string"
+                    },
+                    "addedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/nutrition/favorites/remove": {
+      "delete": {
+        "tags": ["Nutrition"],
+        "summary": "Retirer un repas des favoris",
+        "description": "Retire un repas de la liste des favoris d'un utilisateur",
+        "operationId": "removeMealFromFavorites",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["userId", "mealId"],
+                "properties": {
+                  "userId": {
+                    "type": "string",
+                    "example": "user_123"
+                  },
+                  "mealId": {
+                    "type": "string",
+                    "example": "meal_1"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Repas retiré des favoris",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "userId": {
+                      "type": "string"
+                    },
+                    "mealId": {
+                      "type": "string"
+                    },
+                    "removedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/nutrition/favorites/{userId}": {
+      "get": {
+        "tags": ["Nutrition"],
+        "summary": "Récupérer les repas favoris",
+        "description": "Retourne la liste des repas favoris d'un utilisateur",
+        "operationId": "getFavoriteMeals",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "user_123"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste des repas favoris",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Meal"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/nutrition/stats/{userId}": {
+      "get": {
+        "tags": ["Nutrition"],
+        "summary": "Récupérer les statistiques nutrition",
+        "description": "Retourne les statistiques nutritionnelles d'un utilisateur",
+        "operationId": "getNutritionStats",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "user_123"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statistiques nutrition",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "userId": {
+                      "type": "string"
+                    },
+                    "averageCaloriesPerDay": {
+                      "type": "integer",
+                      "example": 2100
+                    },
+                    "totalMealsLogged": {
+                      "type": "integer",
+                      "example": 87
+                    },
+                    "favoriteMeals": {
+                      "type": "integer",
+                      "example": 8
+                    },
+                    "nutritionStreak": {
+                      "type": "integer",
+                      "example": 12
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "TrainingCategory": {
+        "type": "object",
+        "required": ["id", "name", "description", "programs"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "cardio",
+            "description": "Identifiant unique de la catégorie"
+          },
+          "name": {
+            "type": "string",
+            "example": "CARDIO",
+            "description": "Nom de la catégorie"
+          },
+          "description": {
+            "type": "string",
+            "example": "Améliorez votre endurance",
+            "description": "Description détaillée"
+          },
+          "imageUrl": {
+            "type": "string",
+            "example": "assets/images/cardio.jpg",
+            "description": "URL de l'image représentant la catégorie"
+          },
+          "icon": {
+            "type": "string",
+            "example": "directions_run",
+            "description": "Icône Material Design"
+          },
+          "programs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TrainingProgram"
+            },
+            "description": "Liste des programmes d'entraînement dans cette catégorie"
+          }
+        }
+      },
+      "TrainingProgram": {
+        "type": "object",
+        "required": ["id", "name", "difficulty", "duration", "description"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "cardio_1",
+            "description": "Identifiant unique du programme"
+          },
+          "name": {
+            "type": "string",
+            "example": "Débutant - 20 min",
+            "description": "Nom du programme"
+          },
+          "difficulty": {
+            "type": "string",
+            "enum": ["Facile", "Moyen", "Difficile"],
+            "example": "Facile",
+            "description": "Niveau de difficulté"
+          },
+          "duration": {
+            "type": "integer",
+            "example": 20,
+            "description": "Durée totale en minutes"
+          },
+          "description": {
+            "type": "string",
+            "example": "Parfait pour commencer",
+            "description": "Description du programme"
+          },
+          "imageUrl": {
+            "type": "string",
+            "example": "assets/images/cardio_beginner.jpg",
+            "description": "URL de l'image du programme"
+          },
+          "objective": {
+            "type": "string",
+            "enum": ["muscle", "perte_poids", "endurance", "sante"],
+            "example": "endurance",
+            "description": "Objectif de fitness du programme"
+          },
+          "exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Exercise"
+            },
+            "description": "Liste des exercices du programme"
+          }
+        }
+      },
+      "Exercise": {
+        "type": "object",
+        "required": ["name", "duration"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Échauffement",
+            "description": "Nom de l'exercice"
+          },
+          "duration": {
+            "type": "integer",
+            "example": 3,
+            "description": "Durée de l'exercice en minutes"
+          },
+          "rest": {
+            "type": "integer",
+            "example": 0,
+            "description": "Temps de repos après l'exercice en minutes"
+          },
+          "imageUrl": {
+            "type": "string",
+            "example": "assets/images/warm_up.jpg",
+            "description": "URL de la démonstration de l'exercice"
+          }
+        }
+      },
+      "Meal": {
+        "type": "object",
+        "required": ["id", "name", "description", "calories", "protein", "carbs", "fat"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "meal_1",
+            "description": "Identifiant unique du repas"
+          },
+          "name": {
+            "type": "string",
+            "example": "Poulet Grillé et Riz",
+            "description": "Nom du repas"
+          },
+          "description": {
+            "type": "string",
+            "example": "Équilibré et riche en protéines",
+            "description": "Description du repas"
+          },
+          "calories": {
+            "type": "integer",
+            "example": 650,
+            "description": "Total des calories"
+          },
+          "protein": {
+            "type": "integer",
+            "example": 50,
+            "description": "Protéines en grammes"
+          },
+          "carbs": {
+            "type": "integer",
+            "example": 55,
+            "description": "Glucides en grammes"
+          },
+          "fat": {
+            "type": "integer",
+            "example": 12,
+            "description": "Lipides en grammes"
+          },
+          "prepTime": {
+            "type": "integer",
+            "example": 25,
+            "description": "Temps de préparation en minutes"
+          },
+          "imageUrl": {
+            "type": "string",
+            "example": "assets/images/chicken.jpg",
+            "description": "URL de l'image du repas"
+          },
+          "objectives": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["muscle", "perte_poids", "endurance", "sante"]
+            },
+            "example": ["muscle"],
+            "description": "Objectifs de fitness correspondants"
+          }
+        }
+      },
+      "Training": {
+        "type": "object",
+        "required": ["userId", "programId", "duration"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "training_1701388800000",
+            "description": "Identifiant unique de l'entraînement"
+          },
+          "userId": {
+            "type": "string",
+            "example": "user_123",
+            "description": "ID de l'utilisateur"
+          },
+          "programId": {
+            "type": "string",
+            "example": "cardio_1",
+            "description": "ID du programme d'entraînement"
+          },
+          "duration": {
+            "type": "integer",
+            "example": 20,
+            "description": "Durée réelle en minutes"
+          },
+          "caloriesBurned": {
+            "type": "integer",
+            "example": 250,
+            "description": "Calories brûlées"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-12-01T15:30:00Z",
+            "description": "Date et heure de fin"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["completed", "paused", "abandoned"],
+            "example": "completed",
+            "description": "Statut de l'entraînement"
+          }
+        }
+      },
+      "TrainingStats": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "example": "user_123"
+          },
+          "totalWorkouts": {
+            "type": "integer",
+            "example": 42,
+            "description": "Nombre total d'entraînements"
+          },
+          "totalCaloriesBurned": {
+            "type": "integer",
+            "example": 12500,
+            "description": "Total des calories brûlées"
+          },
+          "totalMinutes": {
+            "type": "integer",
+            "example": 1240,
+            "description": "Durée totale en minutes"
+          },
+          "averagePerWeek": {
+            "type": "number",
+            "example": 6,
+            "description": "Moyenne d'entraînements par semaine"
+          },
+          "currentStreak": {
+            "type": "integer",
+            "example": 5,
+            "description": "Nombre de jours consécutifs d'entraînement"
+          }
+        }
+      },
+      
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Description de l'erreur"
+          },
+          "statusCode": {
+            "type": "integer",
+            "example": 400
+          }
+        }
+      }
+    },
+    "responses": {
+      "NotFound": {
+        "description": "Ressource non trouvée",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "BadRequest": {
+        "description": "Mauvaise requête - paramètres manquants ou invalides",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "ServerError": {
+        "description": "Erreur serveur interne",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    }
+  }
+}
