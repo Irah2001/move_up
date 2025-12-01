@@ -1,0 +1,14 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Avatars: only the authenticated owner can read or write their avatar
+    match /avatars/{userId}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // By default deny other access (you can relax this for public assets if needed)
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
