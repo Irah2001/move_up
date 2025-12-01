@@ -45,5 +45,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Nécessaire pour afficher votre position sur la carte et trouver les salles de sport à proximité.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Nécessaire pour afficher votre position sur la carte.</string>
 </dict>
 </plist>
