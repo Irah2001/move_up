@@ -47,7 +47,7 @@ const normalizeExerciseName = (name) => {
 
 // Use REST via axios when GEMINI_API_KEY is present. We do not require an SDK.
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || null;
-const GEMINI_BASE = process.env.GEMINI_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta2';
+const GEMINI_BASE = process.env.GEMINI_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta';
 const geminiEnabled = Boolean(GEMINI_API_KEY);
 if (geminiEnabled) {
   console.log('✅ GEMINI_API_KEY present — using Gemini REST API via axios.');
