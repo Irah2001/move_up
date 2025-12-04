@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:move_up/constants/app_colors.dart';
 import 'package:move_up/screens/maps_screen.dart';
+import 'package:move_up/screens/training_screen.dart';
+import 'package:move_up/screens/nutrition_screen.dart';
 import 'package:move_up/screens/progress_screen.dart';
 import 'package:move_up/screens/user_profile_page.dart';
 
@@ -22,17 +24,10 @@ class _HomeScreenState extends State<HomeScreen> {
     'PROFIL',
   ];
 
-  static const Widget _comingSoonWidget = Center(
-    child: Text(
-      'Bientôt disponible',
-      style: TextStyle(color: AppColors.white, fontSize: 18),
-    ),
-  );
-
   static const List<Widget> _widgetOptions = <Widget>[
     MapsScreen(),
-    _comingSoonWidget,
-    _comingSoonWidget,
+    TrainingScreen(),
+    NutritionScreen(),
     ProgressScreen(),
     UserProfilePage(),
   ];

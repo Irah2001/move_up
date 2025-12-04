@@ -1,0 +1,94 @@
+{
+  "tips": [
+    {
+      "id": "tip_t1",
+      "title": "Échauffement crucial",
+      "content": "Consacrez 5-10 minutes à l'échauffement avant votre séance pour préparer vos muscles et articulations, et réduire le risque de blessure.",
+      "category": "sécurité"
+    },
+    {
+      "id": "tip_t2",
+      "title": "Progressivité régulière",
+      "content": "Augmentez progressivement les poids et les répétitions chaque semaine. Une augmentation de 5-10% est généralement idéale.",
+      "category": "progression"
+    },
+    {
+      "id": "tip_t3",
+      "title": "Repos entre les séries",
+      "content": "Pour la force : 2-3 min de repos. Pour l'hypertrophie : 60-90 sec. Pour l'endurance : 30-45 sec. L'adaptation du repos optimise vos résultats.",
+      "category": "technique"
+    },
+    {
+      "id": "tip_t4",
+      "title": "Mouvements composés prioritaires",
+      "content": "Commencez votre séance par des mouvements composés (squat, deadlift, bench press) quand votre énergie est maximale.",
+      "category": "stratégie"
+    },
+    {
+      "id": "tip_t5",
+      "title": "Qualité over quantité",
+      "content": "10 répétitions bien exécutées sont plus efficaces que 20 avec une forme médiocre. Maîtrisez la technique avant d'augmenter les charges.",
+      "category": "technique"
+    },
+    {
+      "id": "tip_t6",
+      "title": "Hydratation pendant l'effort",
+      "content": "Buvez régulièrement pendant votre entraînement. Visez 200-300 ml d'eau toutes les 15-20 minutes d'effort intense.",
+      "category": "nutrition"
+    },
+    {
+      "id": "tip_t7",
+      "title": "Recovery day importante",
+      "content": "Les jours de repos permettent aux muscles de se reconstruire. Prévoyez au moins 1-2 jours de récupération complète par semaine.",
+      "category": "récupération"
+    },
+    {
+      "id": "tip_t8",
+      "title": "Protéines post-entraînement",
+      "content": "Consommez 20-40g de protéines dans les 30-60 min après votre séance pour favoriser la récupération musculaire.",
+      "category": "nutrition"
+    },
+    {
+      "id": "tip_t9",
+      "title": "Cardio et musculation",
+      "content": "Combinez cardio (20-30 min) et musculation pour des résultats optimaux. Variez les intensités pour éviter le plateau.",
+      "category": "stratégie"
+    },
+    {
+      "id": "tip_t10",
+      "title": "Respiration maîtrisée",
+      "content": "Expirez à l'effort (contraction), inspirez au relâchement (excentrique). Une respiration correcte stabilise votre ceinture abdominale.",
+      "category": "technique"
+    },
+    {
+      "id": "tip_t11",
+      "title": "Variez vos exercices",
+      "content": "Changez votre programme tous les 4-6 semaines pour chasser l'adaptation et continuer à progresser.",
+      "category": "progression"
+    },
+    {
+      "id": "tip_t12",
+      "title": "Dormir pour la force",
+      "content": "7-9 heures de sommeil par nuit optimisent votre récupération et votre performance musculaire.",
+      "category": "récupération"
+    },
+    {
+      "id": "tip_t13",
+      "title": "Amplitude complète",
+      "content": "Utilisez l'amplitude complète des mouvements pour engager plus de fibres musculaires et maximiser vos gains.",
+      "category": "technique"
+    },
+    {
+      "id": "tip_t14",
+      "title": "Tracez votre progression",
+      "content": "Notez vos poids, séries et répétitions à chaque entraînement. Cela vous aide à rester motivé et à identifier les progrès.",
+      "category": "suivi"
+    },
+    {
+      "id": "tip_t15",
+      "title": "Écoutez votre corps",
+      "content": "Si vous ressentez une douleur anormale (autre que la fatigue musculaire), arrêtez et consultez un professionnel de santé.",
+      "category": "sécurité"
+    }
+  ]
+}

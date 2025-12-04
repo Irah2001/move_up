@@ -1,0 +1,52 @@
+{
+  "$id": "https://moveup.app/schemas/training_program.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TrainingProgram",
+  "type": "object",
+  "required": ["id", "name", "difficulty", "objectives", "workouts"],
+  "properties": {
+    "id": { "type": "string" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "difficulty": { "type": "string", "enum": ["Facile", "Intermédiaire", "Difficile"] },
+    "durationMinutes": { "type": "integer", "minimum": 0 },
+    "objectives": { "type": "array", "items": { "type": "string" } },
+    "equipment": { "type": "array", "items": { "type": "string" } },
+    "workouts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "exercises"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "day": { "type": "string" },
+          "durationMinutes": { "type": "integer" },
+          "warmup": { "type": "array", "items": { "type": "string" } },
+          "exercises": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "name", "sets", "reps"],
+              "properties": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "type": { "type": "string" },
+                "muscles": { "type": "array", "items": { "type": "string" } },
+                "sets": { "type": "integer", "minimum": 1 },
+                "reps": { "type": "string" },
+                "tempo": { "type": "string" },
+                "restSeconds": { "type": "integer", "minimum": 0 },
+                "instructions": { "type": "string" },
+                "equipment": { "type": "array", "items": { "type": "string" } }
+              }
+            }
+          },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "generatedBy": { "type": "string" }
+  }
+}

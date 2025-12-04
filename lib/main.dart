@@ -14,7 +14,7 @@ import 'package:move_up/screens/maps_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await dotenv.load(fileName: ".env");
+  await dotenv.load(fileName: "backend/.env");
   runApp(const MyApp());
 }
 

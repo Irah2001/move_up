@@ -1,0 +1,94 @@
+{
+  "tips": [
+    {
+      "id": "tip_n1",
+      "title": "Petit-déjeuner protéiné",
+      "content": "Commencez votre journée avec un petit-déjeuner riche en protéines et en fibres. Cela stabilise votre glycémie toute la journée.",
+      "category": "petit-déjeuner"
+    },
+    {
+      "id": "tip_n2",
+      "title": "Hydratation quotidienne",
+      "content": "Buvez 2-3 litres d'eau par jour. Une bonne hydratation améliore la digestion et élimine les toxines.",
+      "category": "hydratation"
+    },
+    {
+      "id": "tip_n3",
+      "title": "Repas équilibrés",
+      "content": "Chaque repas doit contenir protéines, féculents et légumes. Ce trio assure un apport nutritif complet.",
+      "category": "équilibre"
+    },
+    {
+      "id": "tip_n4",
+      "title": "Snacks intelligents",
+      "content": "Privilégiez les fruits, les noix, les yaourts ou les barres protéinées plutôt que les sucreries ultra-transformées.",
+      "category": "collations"
+    },
+    {
+      "id": "tip_n5",
+      "title": "Portions modérées",
+      "content": "Utilisez des assiettes plus petites et mangez lentement. Cela aide votre cerveau à enregistrer la satiété correctement.",
+      "category": "portions"
+    },
+    {
+      "id": "tip_n6",
+      "title": "Sucres lents vs rapides",
+      "content": "Préférez les riz complet, pâtes complètes et avoine aux sucres rapides (pain blanc, bonbons) pour une énergie stable.",
+      "category": "glucides"
+    },
+    {
+      "id": "tip_n7",
+      "title": "Graisses saines",
+      "content": "Consommez des oméga-3 (poisson, lin, noix) et des acides gras insaturés (olive, avocat). Limitez les graisses saturées.",
+      "category": "lipides"
+    },
+    {
+      "id": "tip_n8",
+      "title": "Légumes colorés",
+      "content": "Mangez une variété de légumes de couleurs différentes (rouge, vert, orange) pour maximiser vos apports en micronutriments.",
+      "category": "légumes"
+    },
+    {
+      "id": "tip_n9",
+      "title": "Fibres alimentaires",
+      "content": "Ciblez 25-30g de fibres par jour via fruits, légumes et céréales complètes pour une digestion optimale.",
+      "category": "fibres"
+    },
+    {
+      "id": "tip_n10",
+      "title": "Fruits frais quotidiens",
+      "content": "Consommez 3-5 portions de fruits par jour pour obtenir vitamine C, antioxydants et fibres.",
+      "category": "fruits"
+    },
+    {
+      "id": "tip_n11",
+      "title": "Sel modéré",
+      "content": "Limitez votre consommation de sel à moins de 5g par jour pour préserver votre tension artérielle.",
+      "category": "minéraux"
+    },
+    {
+      "id": "tip_n12",
+      "title": "Pas de repas sautés",
+      "content": "Mangez régulièrement (3 repas + 1-2 collations) pour maintenir votre métabolisme actif et éviter les fringales.",
+      "category": "rythme"
+    },
+    {
+      "id": "tip_n13",
+      "title": "Alcool modéré",
+      "content": "Limitez l'alcool à 1-2 verres par jour. Il ajoute des calories vides et ralentit la récupération musculaire.",
+      "category": "boissons"
+    },
+    {
+      "id": "tip_n14",
+      "title": "Calcium et Vitamine D",
+      "content": "Consommez des produits laitiers ou des substituts enrichis, et exposez-vous régulièrement au soleil pour la vitamine D.",
+      "category": "minéraux"
+    },
+    {
+      "id": "tip_n15",
+      "title": "Planification hebdomadaire",
+      "content": "Préparez vos repas à l'avance (meal prep). Cela vous aide à maîtriser vos calories et à rester constant.",
+      "category": "organisation"
+    }
+  ]
+}
